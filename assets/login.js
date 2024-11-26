@@ -1,6 +1,6 @@
 let nameField = document.querySelector('#name');
 let gameField = document.querySelector('#game');
-let gamesSelect = document.querySelector('#gamesSelect');
+let gamesSelect = document.querySelector('#games');
 let loginBtn = document.querySelector('#login');
 
 const socket = io();
@@ -29,7 +29,7 @@ loginBtn.addEventListener('click', ()=>{
 
 socket.emit('getGameList');
 
-socket.on('updateGameList', (game)=>{
+socket.on('updateGameList', (games)=>{
     gamesSelect.innerHTML = '<option value="" selected>Join to an existing game: </option>';
     games.forEach(game => {
         let option = document.createElement('option');

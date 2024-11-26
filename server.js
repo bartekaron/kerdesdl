@@ -11,7 +11,8 @@ const server = http.createServer(app);
 const io = socketio(server);
 const mysql = require('mysql')
 
-const { users, rooms, userJoin, userLeave, getRoomUsers, getCurrentUser, inRoomsList, roomLeave } = require('./utils');
+
+const { users, games, userJoin, userLeave, getRoomUsers, getCurrentUser, inRoomsList, roomLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
 
@@ -38,10 +39,12 @@ app.get('/chat/:room/:user', (req, res)=>{
 io.on('connection', (socket)=>{
     console.log(socket.id)
 
-    socket.on('getRoomList', ()=>{
-        io.emit('updateRoomList', rooms)
-    });
+    socket.emit('updateGameList', games);
 
+    socket.on('getGameList', () => {
+        io.emit('updateGameList', games);
+    });
+    
     socket.on('joinToChat', ()=>{
         let user = userJoin(socket.id, session.user, session.room);
         socket.join(session.room);
