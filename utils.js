@@ -14,6 +14,7 @@ function userLeave(id){
     }
     return users;
 }
+
 function gameLeave(game){
     let idx = games.findIndex(r => r === game);
     if (idx != -1){

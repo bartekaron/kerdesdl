@@ -54,7 +54,7 @@ io.on('connection', (socket)=>{
     socket.on('joinToGame', ()=>{
         let user = userJoin(socket.id, session.user, session.game);
         socket.join(session.game);
-        io.to(session.game).emit('updateGameUsers', getGameUsers(session.game));
+        io.to(session.game).emit('updateGameUsers', getgameUsers(session.game));
         io.to(session.game).emit('userConnected', user);
         if (!ingamesList(session.game)){
             games.push(session.game);
@@ -66,8 +66,8 @@ io.on('connection', (socket)=>{
         let user = getCurrentUser(socket.id);
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
-        io.to(user.game).emit('updateGameUsers', getGameUsers(user.game));
-        if (getGameUsers(user.game).length == 0){
+        io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
+        if (getgameUsers(user.game).length == 0){
             gameLeave(user.game);
             io.emit('updateGameList', games);
         }
