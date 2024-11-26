@@ -1,2 +1,2 @@
 # kerdesdl
-Határozottan nem NÉMET!!!!
+Határozottan NÉMET!!!!
