@@ -45,8 +45,10 @@ app.get('/game/:game/:user', (req, res)=>{
 io.on('connection', (socket)=>{
     console.log(socket.id)
 
-    socket.on('getGameList', ()=>{
-        io.emit('updateGameList', games)
+    socket.emit('updateGameList', games);
+
+    socket.on('getGameList', () => {
+        io.emit('updateGameList', games);
     });
 
     socket.on('joinToGame', ()=>{

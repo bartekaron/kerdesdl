@@ -1,8 +1,8 @@
 let users = [];
-let rooms = [];
+let games = [];
 
-function userJoin(id, username, room){
-    const user = { id, username, room };
+function userJoin(id, username, game){
+    const user = { id, username, game };
     users.push(user);
     return user;
 }
@@ -14,33 +14,33 @@ function userLeave(id){
     }
     return users;
 }
-function roomLeave(room){
-    let idx = rooms.findIndex(r => r === room);
+function gameLeave(game){
+    let idx = games.findIndex(r => r === game);
     if (idx != -1){
-        rooms.splice(idx, 1);
+        games.splice(idx, 1);
     }
-    return rooms;
+    return games;
 }
 
-function getRoomUsers(room){
-    return users.filter(user => user.room === room );
+function getgameUsers(game){
+    return users.filter(user => user.game === game );
 }
 
 function getCurrentUser(id){
     return users.find(user => user.id === id);
 }
 
-function inRoomsList(room){
-    return rooms.includes(room);
+function ingamesList(game){
+    return games.includes(game);
 }
 
 module.exports = {
     users,
-    rooms,
+    games,
     userJoin,
     userLeave,
-    roomLeave,
-    getRoomUsers,
+    gameLeave,
+    getgameUsers,
     getCurrentUser,
-    inRoomsList
+    ingamesList
 }
