@@ -36,6 +36,9 @@ footer{
 .incoming{
     background-color: rgba(91, 104, 163, 0.3);
 }
+body{
+    font-family: 'Comic SANS MS', 'Comic Sans', cursive;
+}
 
 .timestamp{
     font-size: 70%;
