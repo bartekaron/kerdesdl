@@ -139,54 +139,60 @@ button:hover {
     margin-top: -15px;
     font-style: italic;
 }
-/* Ensure the question and users list sections stay within bounds */
-#kerdesek {
-    white-space: normal; /* Allows text to wrap */
-    overflow-wrap: break-word; /* Break long words to fit the container */
-    word-wrap: break-word; /* For older browsers */
-    text-overflow: ellipsis; /* In case the text is too long, show "..." */
-    max-height: 150px; /* Limit height to prevent excessive overflow */
-    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+
+/* Kérdés és játékosok listája */
+#kerdesek, #usersList {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    max-height: 150px; /* Maximális magasság */
+    overflow-y: auto; /* Görgethető lista, ha szükséges */
     padding: 10px;
+    margin-bottom: 15px; /* Térköz a két mező között */
+    background-color: #444; /* Sötét háttér */
+    color: #fff; /* Fehér szöveg */
+    border-radius: 8px; /* Lekerekített sarkok */
 }
 
+/* Játékosok listájának stílusa */
 #usersList {
-    max-height: 300px; /* Set max height for the players' list */
-    overflow-y: auto; /* Enable vertical scrolling if the list exceeds max height */
+    max-height: 200px; /* Játékosok listájának maximális magassága */
+    overflow-y: auto; /* Görgetés engedélyezése */
     padding: 10px;
-    background-color: #333; /* Make it stand out visually */
-    color: #e0e0e0; /* Light text for the dark theme */
-    border-radius: 8px; /* Rounded corners */
+    background-color: #333; /* Sötét háttér */
+    color: #e0e0e0; /* Világos szöveg */
+    border-radius: 8px; /* Lekerekített sarkok */
 }
 
-/* Ensure the layout for players list is clean and scrollable */
-.form-floating.mb-3.col-4 {
-    padding-right: 10px;
-    padding-left: 10px;
+/* A mező címkék elhelyezése és formázása */
+label {
+    font-size: 1rem; /* A címkék méretének beállítása */
+    color: #ccc; /* Szürke szín */
+    font-weight: bold; /* A címkék kiemelése */
+    margin-bottom: 5px; /* Kis térköz a mező és a címke között */
+    display: block; /* A címke blokk szintű, hogy alatta legyen a mező */
 }
 
-button {
-    width: 100%;
-    max-width: 150px; /* Limit button width to prevent overflow */
-    padding: 12px;
-    font-size: 1.1rem;
+/* A form-control mező finomítása */
+.form-control {
+    padding: 10px; /* A mezők belső margója */
+    font-size: 1rem; /* A mezők betűmérete */
+    border-radius: 8px; /* Lekerekített sarkok */
 }
 
+/* Mobilnézet optimalizálás */
 @media (max-width: 768px) {
     .form-floating {
         margin-bottom: 10px;
     }
-
-    .col-8 {
-        width: 100%;
+    
+    .col-8, .col-4 {
+        width: 100%; /* Kis képernyőkön teljes szélesség */
     }
-
-    .col-4 {
-        width: 100%;
-        margin-top: 10px;
-    }
-
+    
+    /* A válasz gomb teljes szélessége */
     #sendBtn {
-        width: 100%; /* Make the button take up full width on small screens */
+        width: 100%;
     }
 }
