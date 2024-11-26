@@ -37,7 +37,9 @@ footer{
     background-color: rgba(91, 104, 163, 0.3);
 }
 /*HA IDE TESZED A COMIC SANSET LEVÁGOM A FASZOD*/
-
+body{
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+}
 .timestamp{
     font-size: 70%;
     color: gray;

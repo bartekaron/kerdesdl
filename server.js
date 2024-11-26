@@ -32,18 +32,20 @@ app.get('/', (req, res)=>{
 app.get('/game/:game/:user', (req, res)=>{
     session.user = req.params.user;
     session.game = req.params.game;
+    res.render('game.ejs', {user:session.user, game:session.game});
+});
+
+io.on('connection', (socket)=>{
+    console.log(socket.id)
+
     pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
         if (err) {
             console.log(err);
             return;
         }
-    res.render('game.ejs', {user:session.user, game:session.game, kerdesek:results});
-});
-
-});
-
-io.on('connection', (socket)=>{
-    console.log(socket.id)
+        console.log(results)
+        socket.emit('kerdesek', results);
+    });
 
     socket.emit('updateGameList', games);
 
@@ -74,10 +76,11 @@ io.on('connection', (socket)=>{
     
     });
 
-    socket.on('sendMsg', (msg)=>{
+    socket.on('sendAnswer', (msg)=>{
         let user = getCurrentUser(socket.id);
         io.to(user.game).emit('message', user, msg);
     });
+
 });
 
 
