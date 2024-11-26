@@ -1,50 +1,109 @@
-header{
-    padding: 35px;
+/* General Styles */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header {
+    padding: 50px 20px;
     text-align: center;
-    font-size: 200%;
+    font-size: 2rem;
+    color: #e0e0e0;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-footer{
+footer {
     text-align: center;
-    padding: 20px;
-    letter-spacing: 3px;
-    font-size: 80%;
+    padding: 15px 20px;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #aaa;
+    background-color: #333;
+    margin-top: 30px;
+    border-radius: 10px;
 }
 
-
-#messages, #usersList{
-    min-height: 400px !important;
-    overflow-y: scroll;
+h3 {
+    color: #f1f1f1;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
 }
 
-.msg{
-    padding: 6px;
-    border-radius: 6px;
+/* Form Styles */
+.form-floating {
+    margin-bottom: 15px;
+}
+
+.form-control,
+.form-select {
+    background-color: #444;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    border-radius: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #008CBA;
+    background-color: #333;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 140, 186, 0.25);
+}
+
+label {
+    color: #ccc;
+}
+
+/* Button Styles */
+button {
+    background-color: #008CBA;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    width: 100%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #007bb5;
+}
+
+/* Message Styles */
+.msg {
+    padding: 12px;
+    border-radius: 8px;
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    max-width: 75%;
+    font-size: 0.9rem;
+    background-color: #444;
+    color: #e0e0e0;
 }
 
-.system{
-    background-color: rgba(100,100,100, 0.3);
+.system {
+    background-color: rgba(100, 100, 100, 0.3);
 }
 
-.outgoing{
+.outgoing {
     background-color: rgba(155, 197, 116, 0.3);
-
 }
 
-.incoming{
+.incoming {
     background-color: rgba(91, 104, 163, 0.3);
 }
-/*HA IDE TESZED A COMIC SANSET LEVÁGOM A FASZOD*/
-body{
-    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-}
-.timestamp{
-    font-size: 70%;
-    color: gray;
+
+/* Timestamp */
+.timestamp {
+    font-size: 0.8rem;
+    color: #999;
     position: absolute;
-    right: 6px;
-    margin-top: -13px;
+    right: 10px;
+    margin-top: -15px;
     font-style: italic;
 }
