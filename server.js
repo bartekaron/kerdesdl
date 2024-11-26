@@ -12,7 +12,6 @@ const io = socketio(server);
 app.use('/assets', express.static('assets'));
 
 
-
 server.listen(port, ()=>{
     console.log(`Server listening on http://localhost:${port}`);
 });

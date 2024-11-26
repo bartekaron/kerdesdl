@@ -1,0 +1,27 @@
+<%- include('header') %>
+
+<div class="col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+    <h3>Login to chat</h3>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="name" placeholder="">
+        <label for="name">Név:</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="game" placeholder="">
+        <label for="game">Új gém:</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select class="form-select" id="games" aria-label="">
+            <option value="" selected>Csatlakozás meglévő gémhez</option>
+    
+        </select>
+        <label for="games">Gém kiválasztása:</label>
+        </div>
+    <button class="btn btn-primary mb-3" id="login">Bejelentkezés</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="./assets/login.js"></script>
+
+ <%- include('footer') %>
