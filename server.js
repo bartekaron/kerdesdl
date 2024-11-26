@@ -11,6 +11,16 @@ const io = socketio(server);
 
 app.use('/assets', express.static('assets'));
 
+var port = process.env.PORT;
+
+var pool = mysql.createPool({
+    connectionLimit : process.env.CONNECTIONLIMIT,
+    host     : process.env.DBHOST,
+    user     : process.env.DBUSER,
+    password : process.env.DBPASSWORD,
+    database : process.env.DBNAME
+});
+
 
 
 server.listen(port, ()=>{
