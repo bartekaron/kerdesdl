@@ -21,3 +21,42 @@ socket.on('updateGameUsers', (gameUsers) => {
 socket.on('userConnected', (user) => {
    renderMessage('System', `${user.username} connected to the game...`);
 });
+
+socket.on('message', (user, msg) => {
+    renderMessage(user.username, msg);
+});
+
+socket.on('kerdes', (kerdes) => {
+    kerdesek.innerHTML = kerdes.kerdes;
+    valaszok.innerHTML = '';
+    kerdes.valaszok.forEach(valasz => {
+        let btn = document.createElement('button');
+        btn.textContent = valasz;
+        btn.addEventListener('click', () => {
+            socket.emit('valasz', valasz);
+        });
+        valaszok.appendChild(btn);
+    });
+}
+);
+
+socket.on('gameOver', (winner) => {
+    renderMessage('System', `The winner is ${winner}!`);
+});
+
+sendBtn.addEventListener('click', () => {
+    let msg = document.getElementById('msg').value;
+    socket.emit('sendMsg', msg);
+    renderMessage('You', msg);
+});
+
+leaveBtn.addEventListener('click', () => {
+    socket.emit('leaveGame');
+    document.location.href = '/';
+});
+
+
+function renderMessage(user, msg) {
+    
+}
+
