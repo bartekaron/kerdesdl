@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 const mysql = require('mysql')
 
-const { users, rooms, userJoin, userLeave, getRoomUsers, getCurrentUser, inRoomsList, roomLeave } = require('./utils');
+const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
 
@@ -29,62 +29,55 @@ app.get('/', (req, res)=>{
     res.render('index.ejs');
 }); 
 
-app.get('/chat/:room/:user', (req, res)=>{
+app.get('/game/:game/:user', (req, res)=>{
     session.user = req.params.user;
-    session.room = req.params.room;
-    res.render('chat.ejs', {user:session.user, room:session.room});
+    session.game = req.params.game;
+    pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
+        if (err) {
+            console.log(err);
+            return;
+        }
+    res.render('game.ejs', {user:session.user, game:session.game, kerdesek:results});
+});
+
 });
 
 io.on('connection', (socket)=>{
     console.log(socket.id)
 
-    socket.on('getRoomList', ()=>{
-        io.emit('updateRoomList', rooms)
+    socket.on('getGameList', ()=>{
+        io.emit('updateGameList', games)
     });
 
-    socket.on('joinToChat', ()=>{
-        let user = userJoin(socket.id, session.user, session.room);
-        socket.join(session.room);
-        io.to(session.room).emit('updateRoomUsers', getRoomUsers(session.room));
-        io.to(session.room).emit('userConnected', user);
-        if (!inRoomsList(session.room)){
-            rooms.push(session.room);
-            io.emit('updateRoomList', rooms);
+    socket.on('joinToGame', ()=>{
+        let user = userJoin(socket.id, session.user, session.game);
+        socket.join(session.game);
+        io.to(session.game).emit('updateGameUsers', getGameUsers(session.game));
+        io.to(session.game).emit('userConnected', user);
+        if (!ingamesList(session.game)){
+            games.push(session.game);
+            io.emit('updateGameList', games);
         }
     });
 
-    socket.on('leaveChat', ()=>{
+    socket.on('leaveGame', ()=>{
         let user = getCurrentUser(socket.id);
         userLeave(socket.id);
-        io.to(user.room).emit('message', 'System', `${user.username} left the chat...`);
-        io.to(user.room).emit('updateRoomUsers', getRoomUsers(user.room));
-        if (getRoomUsers(user.room).length == 0){
-            roomLeave(user.room);
-            io.emit('updateRoomList', rooms);
+        io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
+        io.to(user.game).emit('updateGameUsers', getGameUsers(user.game));
+        if (getGameUsers(user.game).length == 0){
+            gameLeave(user.game);
+            io.emit('updateGameList', games);
         }
     
     });
 
     socket.on('sendMsg', (msg)=>{
         let user = getCurrentUser(socket.id);
-        io.to(user.room).emit('message', user, msg);
+        io.to(user.game).emit('message', user, msg);
     });
 });
 
-
-app.get('/game/:room/:user', (req, res)=>{
-    // let { name, room } = req.body;
-    session.user = req.params.user;
-    session.room = req.params.room;
-    pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
-        if (err) {
-            console.log(err);
-            return;
-        }
-    res.render('game.ejs', {user:session.user, room:session.room, kerdesek:results});
-});
-
-});
 
 server.listen(port, ()=>{
     console.log(`Server listening on http://localhost:${port}`);
