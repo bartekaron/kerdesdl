@@ -38,15 +38,6 @@ app.get('/game/:game/:user', (req, res)=>{
 io.on('connection', (socket)=>{
     console.log(socket.id)
 
-    pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
-        if (err) {
-            console.log(err);
-            return;
-        }
-        console.log(results)
-        socket.emit('kerdesek', results);
-    });
-
     socket.emit('updateGameList', games);
 
     socket.on('getGameList', () => {
@@ -54,6 +45,17 @@ io.on('connection', (socket)=>{
     });
 
     socket.on('joinToGame', ()=>{
+
+
+        pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log(results)
+            socket.emit('kerdesek', results);
+        });
+
         let user = userJoin(socket.id, session.user, session.game);
         socket.join(session.game);
         io.to(session.game).emit('updateGameUsers', getgameUsers(session.game));
