@@ -1,0 +1,2 @@
+# kerdesdl
+Határozottan nem NÉMET!!!!
