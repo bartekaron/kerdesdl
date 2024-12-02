@@ -2,7 +2,6 @@
 body {
     background-color: #121212;
     color: #e0e0e0;
-    /*JANI!!!! NINCS COMIC SANS*/  
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -116,53 +115,132 @@ button:hover {
     overflow-wrap: break-word;
     word-wrap: break-word;
     text-overflow: ellipsis;
-    max-height: 150px; /* Maximális magasság */
-    overflow-y: auto; /* Görgethető lista, ha szükséges */
+    max-height: 150px;
+    overflow-y: auto;
     padding: 10px;
-    margin-bottom: 15px; /* Térköz a két mező között */
-    background-color: #444; /* Sötét háttér */
-    color: #fff; /* Fehér szöveg */
-    border-radius: 8px; /* Lekerekített sarkok */
+    margin-bottom: 15px;
+    background-color: #444;
+    color: #fff;
+    border-radius: 8px;
 }
 
 /* Játékosok listájának stílusa */
 #usersList {
-    max-height: 200px; /* Játékosok listájának maximális magassága */
-    overflow-y: auto; /* Görgetés engedélyezése */
+    max-height: 200px;
+    overflow-y: auto;
     padding: 10px;
-    background-color: #333; /* Sötét háttér */
-    color: #e0e0e0; /* Világos szöveg */
-    border-radius: 8px; /* Lekerekített sarkok */
+    background-color: #333;
+    color: #e0e0e0;
+    border-radius: 8px;
 }
 
 /* A mező címkék elhelyezése és formázása */
 label {
-    font-size: 1rem; /* A címkék méretének beállítása */
-    color: #ccc; /* Szürke szín */
-    font-weight: bold; /* A címkék kiemelése */
-    margin-bottom: 5px; /* Kis térköz a mező és a címke között */
-    display: block; /* A címke blokk szintű, hogy alatta legyen a mező */
+    font-size: 1rem;
+    color: #ccc;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
 }
 
 /* A form-control mező finomítása */
 .form-control {
-    padding: 10px; /* A mezők belső margója */
-    font-size: 1rem; /* A mezők betűmérete */
-    border-radius: 8px; /* Lekerekített sarkok */
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
 }
 
 /* Mobilnézet optimalizálás */
-@media (max-width: 768px) {
-    .form-floating {
-        margin-bottom: 10px;
+@media (max-width: 1024px) {
+    /* For medium to large tablets (portrait) */
+    .col-md-8 {
+        width: 100%;
+        margin: 0 auto;
+    }
+    .col-xl-6 {
+        width: 100%;
+        margin: 0 auto;
     }
     
+    /* Stack columns for smaller screens */
     .col-8, .col-4 {
-        width: 100%; /* Kis képernyőkön teljes szélesség */
+        width: 100%;
+        margin-bottom: 15px;
     }
     
-    /* A válasz gomb teljes szélessége */
+    #kerdesek, #usersList {
+        max-height: 200px;
+    }
+
     #sendBtn {
         width: 100%;
+        padding: 14px;
+    }
+
+    /* Ensure that valasz input and kerdesek container are the same width */
+    #valasz {
+        width: 122% !important; /* Ensure it takes full width */
+    }
+}
+
+@media (max-width: 768px) {
+    /* For small tablets and phones */
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .col-8, .col-4 {
+        width: 100%;
+    }
+
+    #sendBtn {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .form-control {
+        font-size: 1rem;
+    }
+
+    /* Add spacing between the columns */
+    .form-control,
+    .form-select {
+        margin-bottom: 10px;
+    }
+
+    /* Ensure valasz input matches kerdesek container width */
+    #valasz {
+        width: 122% !important; 
+    }
+}
+
+@media (max-width: 480px) {
+    /* For very small devices like phones in portrait */
+    header {
+        padding: 30px 10px;
+        font-size: 1.5rem;
+    }
+
+    footer {
+        padding: 10px 15px;
+    }
+
+    .col-md-8 {
+        width: 100%;
+    }
+
+    /* Reduce padding for smaller elements */
+    .form-control {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .col-8, .col-4 {
+        width: 100%;
+    }
+
+    /* Ensure valasz input matches kerdesek container width */
+    #valasz {
+        width: 122% !important;
     }
 }
