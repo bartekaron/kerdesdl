@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
         gameUsers[game].push(socket.id);
 
         if (gameUsers[game].length === 2) { // Ha 2 játékos csatlakozott
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 1`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
             io.emit('csinald');
 
             // Ha mindenki válaszolt, küldjük az új kérdést
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 1`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
