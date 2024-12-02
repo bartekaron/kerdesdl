@@ -11,6 +11,8 @@ const server = http.createServer(app);
 const io = socketio(server);
 const mysql = require('mysql')
 
+let currentGameUsers = [];
+
 const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
@@ -35,8 +37,9 @@ app.get('/game/:game/:user', (req, res)=>{
     res.render('game.ejs', {user:session.user, game:session.game});
 });
 
-io.on('connection', (socket)=>{
-    console.log(socket.id)
+
+io.on('connection', (socket) => {
+    console.log(socket.id);
 
     socket.emit('updateGameList', games);
 
@@ -44,47 +47,49 @@ io.on('connection', (socket)=>{
         io.emit('updateGameList', games);
     });
 
-    socket.on('joinToGame', ()=>{
+    socket.on('joinToGame', () => {
+  
+        currentGameUsers.push(socket.id);
 
+     
+        if (currentGameUsers.length === 5) {
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
 
-        pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results)=>{
-            if (err) {
-                console.log(err);
-                return;
-            }
-            console.log(results)
-            socket.emit('kerdesek', results);
-        });
+                io.to(session.game).emit('kerdesek', results);
+            });
+        }
 
         let user = userJoin(socket.id, session.user, session.game);
         socket.join(session.game);
         io.to(session.game).emit('updateGameUsers', getgameUsers(session.game));
         io.to(session.game).emit('userConnected', user);
-        if (!ingamesList(session.game)){
+        if (!ingamesList(session.game)) {
             games.push(session.game);
             io.emit('updateGameList', games);
         }
     });
 
-    socket.on('leaveGame', ()=>{
+    socket.on('leaveGame', () => {
         let user = getCurrentUser(socket.id);
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
         io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
-        if (getgameUsers(user.game).length == 0){
+        currentGameUsers = currentGameUsers.filter(id => id !== socket.id); 
+        if (getgameUsers(user.game).length === 0) {
             gameLeave(user.game);
             io.emit('updateGameList', games);
         }
-    
     });
 
-    socket.on('sendAnswer', (valasz)=>{
+    socket.on('sendAnswer', (valasz) => {
         let user = getCurrentUser(socket.id);
-        console.log(valasz)
+        console.log(valasz);
         io.to(user.game).emit('message', user, valasz);
-       
     });
-
 });
 
 
