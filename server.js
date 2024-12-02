@@ -70,6 +70,7 @@ io.on('connection', (socket) => {
                     console.log(err);
                     return;
                 }
+                console.log(results);
                 io.to(game).emit('kerdesek', results);
                 // Inicializáljuk a válaszokat, hogy mindegyik játékos még nem válaszolt
                 gameAnswers[game] = {};
@@ -139,6 +140,11 @@ io.on('connection', (socket) => {
             io.emit('updateGameList', games);
         }
     });
+
+    socket.on('gameOver', (winner) => {
+        io.emit('end', winner);
+    });
+
 });
 
 
