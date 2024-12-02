@@ -29,7 +29,7 @@ loginBtn.addEventListener('click', ()=>{
 
 socket.emit('getGameList');
 
-socket.on('updateGameList', (games)=>{
+socket.on('updateGameList', (games) => {
     gamesSelect.innerHTML = '<option value="" selected>Join to an existing game: </option>';
     games.forEach(game => {
         let option = document.createElement('option');
@@ -37,5 +37,4 @@ socket.on('updateGameList', (games)=>{
         option.innerText = game;
         gamesSelect.appendChild(option);
     });
-
 });

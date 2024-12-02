@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 const mysql = require('mysql')
 
-let currentGameUsers = [];
+let gameUsers = {};
 
 const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
@@ -48,27 +48,35 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinToGame', () => {
-  
-        currentGameUsers.push(socket.id);
+        const game = session.game;
 
-     
-        if (currentGameUsers.length === 5) {
+        if (gameUsers[game] && gameUsers[game].length >= 5) {
+            socket.emit('gameFull', 'Ez a szoba már tele van.');
+            return;
+        }
+
+        if (!gameUsers[game]) {
+            gameUsers[game] = [];
+        }
+
+        gameUsers[game].push(socket.id);
+
+        if (gameUsers[game].length === 5) {
             pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
                 }
-
-                io.to(session.game).emit('kerdesek', results);
+                io.to(game).emit('kerdesek', results);
             });
         }
 
-        let user = userJoin(socket.id, session.user, session.game);
-        socket.join(session.game);
-        io.to(session.game).emit('updateGameUsers', getgameUsers(session.game));
-        io.to(session.game).emit('userConnected', user);
-        if (!ingamesList(session.game)) {
-            games.push(session.game);
+        let user = userJoin(socket.id, session.user, game);
+        socket.join(game);
+        io.to(game).emit('updateGameUsers', getgameUsers(game));
+        io.to(game).emit('userConnected', user);
+        if (!ingamesList(game)) {
+            games.push(game);
             io.emit('updateGameList', games);
         }
     });
@@ -78,7 +86,9 @@ io.on('connection', (socket) => {
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
         io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
-        currentGameUsers = currentGameUsers.filter(id => id !== socket.id); 
+
+        gameUsers[user.game] = gameUsers[user.game].filter(id => id !== socket.id); 
+
         if (getgameUsers(user.game).length === 0) {
             gameLeave(user.game);
             io.emit('updateGameList', games);

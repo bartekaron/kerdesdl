@@ -56,4 +56,7 @@ function renderMessage(user, message){
     kerdesek.appendChild(li);
 }
 
-
+socket.on('gameFull', (message) => {
+    alert(message);
+    document.location.href = '/';
+});
