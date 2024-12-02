@@ -78,9 +78,11 @@ io.on('connection', (socket)=>{
     
     });
 
-    socket.on('sendAnswer', (msg)=>{
+    socket.on('sendAnswer', (valasz)=>{
         let user = getCurrentUser(socket.id);
-        io.to(user.game).emit('message', user, msg);
+        console.log(valasz)
+        io.to(user.game).emit('message', user, valasz);
+       
     });
 
 });
