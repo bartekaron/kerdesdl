@@ -25,25 +25,29 @@ socket.on('userConnected', (user) => {
 
 
 
-
-socket.on('kerdesek', (results) => {
-    adatok = results;
-    kerdesek.innerHTML = adatok[szam].question;
-});
-
 socket.on('gameOver', (winner) => {
 
 });
 
-sendBtn.addEventListener('click', () => {
-    if(adatok[szam].answer == valasz.value){
-        renderMessage('System', 'Helyes válasz!');
-    }
-    socket.emit('sendAnswer', valasz.value);
-    valasz.value = '';
-    szam++
+socket.on('kerdesek', (results) => {
+    adatok = results;
+    szam = 0; 
     kerdesek.innerHTML = adatok[szam].question;
 });
+
+sendBtn.addEventListener('click', () => {
+    if (adatok[szam].answer == valasz.value) {
+        renderMessage('System', 'Helyes válasz!');
+    }
+    socket.emit('sendAnswer', valasz.value); // Válasz elküldése
+    valasz.value = '';
+
+    // Ha mindenki válaszolt, csak akkor frissítjük a kérdést
+    // A kérdés csupán akkor frissül, ha az összes játékos válaszolt.
+});
+
+
+
 
 leaveBtn.addEventListener('click', () => {
     socket.emit('leaveGame');

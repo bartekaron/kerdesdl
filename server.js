@@ -38,6 +38,9 @@ app.get('/game/:game/:user', (req, res)=>{
 });
 
 
+let gameAnswers = {};  // A válaszok nyomon követésére szolgáló objektum
+let gameAnswerCount = {};  // A válaszolt játékosok száma
+
 io.on('connection', (socket) => {
     console.log(socket.id);
 
@@ -61,13 +64,20 @@ io.on('connection', (socket) => {
 
         gameUsers[game].push(socket.id);
 
-        if (gameUsers[game].length === 5) {
+        if (gameUsers[game].length === 2) { // Ha 2 játékos csatlakozott
             pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
                 }
                 io.to(game).emit('kerdesek', results);
+                // Inicializáljuk a válaszokat, hogy mindegyik játékos még nem válaszolt
+                gameAnswers[game] = {};
+                gameAnswerCount[game] = 0; // Kezdetben nincs válasz
+
+                gameUsers[game].forEach(id => {
+                    gameAnswers[game][id] = false; // Minden játékos válasza kezdetben hamis
+                });
             });
         }
 
@@ -81,26 +91,59 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('sendAnswer', (valasz) => {
+        let user = getCurrentUser(socket.id);
+        console.log(valasz);
+
+        // Ha a játékos már válaszolt, ne engedjük új válasz küldését
+        if (gameAnswers[user.game][socket.id]) {
+            return;  // Ha már válaszolt, ne csináljunk semmit
+        }
+
+        // Markoljuk, hogy válaszolt
+        gameAnswers[user.game][socket.id] = true;
+        gameAnswerCount[user.game] += 1; // Növeljük a válaszolt játékosok számát
+
+        io.to(user.game).emit('message', user.username, valasz);
+
+        // Ellenőrizzük, hogy mindenki válaszolt-e
+        if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
+            // Ha mindenki válaszolt, küldjük az új kérdést
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                io.to(user.game).emit('kerdesek', results);
+
+                // Reseteljük a válaszokat és a számlálót
+                gameAnswers[user.game] = {};
+                gameAnswerCount[user.game] = 0; // Válaszok száma reset
+                gameUsers[user.game].forEach(id => {
+                    gameAnswers[user.game][id] = false; // Mindenki válasza resetelve
+                });
+            });
+        }
+    });
+
     socket.on('leaveGame', () => {
         let user = getCurrentUser(socket.id);
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
         io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
 
-        gameUsers[user.game] = gameUsers[user.game].filter(id => id !== socket.id); 
+        gameUsers[user.game] = gameUsers[user.game].filter(id => id !== socket.id);
 
         if (getgameUsers(user.game).length === 0) {
             gameLeave(user.game);
             io.emit('updateGameList', games);
         }
     });
-
-    socket.on('sendAnswer', (valasz) => {
-        let user = getCurrentUser(socket.id);
-        console.log(valasz);
-        io.to(user.game).emit('message', user, valasz);
-    });
 });
+
+
+
+
 
 
 server.listen(port, ()=>{
