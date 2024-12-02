@@ -94,11 +94,8 @@ io.on('connection', (socket) => {
     socket.on('sendAnswer', (valasz) => {
         let user = getCurrentUser(socket.id);
         console.log(valasz);
-
-        // Ha a játékos már válaszolt, ne engedjük új válasz küldését
-        if (gameAnswers[user.game][socket.id]) {
-            return;  // Ha már válaszolt, ne csináljunk semmit
-        }
+        socket.emit('necsinald');
+        
 
         // Markoljuk, hogy válaszolt
         gameAnswers[user.game][socket.id] = true;
@@ -108,6 +105,9 @@ io.on('connection', (socket) => {
 
         // Ellenőrizzük, hogy mindenki válaszolt-e
         if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
+
+            io.emit('csinald');
+
             // Ha mindenki válaszolt, küldjük az új kérdést
             pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
                 if (err) {
