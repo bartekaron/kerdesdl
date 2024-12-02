@@ -85,6 +85,12 @@ sendBtn.addEventListener('click', () => {
 });
 
 
+socket.on('necsinald', () => {
+    sendBtn.disabled = true;
+})
+socket.on('csinald', () => {
+    sendBtn.disabled = false;
+})
 
 leaveBtn.addEventListener('click', () => {
     socket.emit('leaveGame');
