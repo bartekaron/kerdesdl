@@ -13,6 +13,7 @@ const mysql = require('mysql')
 
 let gameUsers = {};
 let totalUsers = 0;
+let lastQuestionAnswers = 0;
 const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
@@ -51,6 +52,8 @@ io.on('connection', (socket) => {
     socket.on('getGameList', () => {
         io.emit('updateGameList', games);
     });
+
+    
 
     socket.on('joinToGame', () => {
         const game = session.game;
@@ -96,6 +99,10 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('lastQuestionAnswered', (lastQuestionAnswers) => {
+        
+        io.emit('updateLastQuestionAnswers', lastQuestionAnswers);
+    });
 
     socket.on('sendAnswer', (valasz) => {
         let user = getCurrentUser(socket.id);

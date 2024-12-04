@@ -31,6 +31,11 @@ socket.on('updateUserCount', (count) => {
     console.log("Updated total users:", totalUsers);
 });
 
+socket.on('updateLastQuestionAnswers', (count) => {
+    lastQuestionAnswers = count;
+    console.log("Updated last question answers:", lastQuestionAnswers);
+});
+
 socket.on('userConnected', (user) => {
     renderMessage('System', `${user.username} csatlakozott a játékhoz.`);
     felhasznalokNeve.push(user.username);
@@ -74,8 +79,11 @@ sendBtn.addEventListener('click', () => {
     console.log("Valaszolt kerdesek", valaszoltKerdesek);
     if (valaszoltKerdesek == 2) {
         lastQuestionAnswers++;
+        socket.emit("lastQuestionAnswered", (lastQuestionAnswers));
         console.log("Utso valasz", lastQuestionAnswers);
+        console.log("Total users", totalUsers);
         if (lastQuestionAnswers === totalUsers) {
+            console.log("babos");
             let max = 0;
             let winner = '';
             for (let key in correctAnswers) {
