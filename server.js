@@ -84,48 +84,50 @@ io.on('connection', (socket) => {
 
         let user = userJoin(socket.id, session.user, game);
         socket.join(game);
-        io.to(game).emit('updateGameUsers', getgameUsers(game));
-        io.to(game).emit('userConnected', user);
+        io.to(game).emit('updateGameUsers', getgameUsers(game)); // Frissítés csak a szobának
+        io.to(game).emit('userConnected', user); // Felhasználó értesítése a szobában
         if (!ingamesList(game)) {
             games.push(game);
             io.emit('updateGameList', games);
         }
     });
 
+
     socket.on('sendAnswer', (valasz) => {
         let user = getCurrentUser(socket.id);
         console.log(valasz);
+    
         socket.emit('necsinald');
-        
-
-        // Markoljuk, hogy válaszolt
+    
+        // Frissítsd a válaszokat és a számlálót
         gameAnswers[user.game][socket.id] = true;
-        gameAnswerCount[user.game] += 1; // Növeljük a válaszolt játékosok számát
-
+        gameAnswerCount[user.game] += 1;
+    
+        // Küldj üzenetet csak az adott szobának
         io.to(user.game).emit('message', user.username, valasz);
-
-        // Ellenőrizzük, hogy mindenki válaszolt-e
+    
+        // Ellenőrizd, hogy mindenki válaszolt-e
         if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
-
-            io.emit('csinald');
-
-            // Ha mindenki válaszolt, küldjük az új kérdést
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 1`, (err, results) => {
+            io.to(user.game).emit('csinald'); // Csak az adott szobára küldd
+    
+            // Új kérdés küldése az adott szobának
+            pool.query(`SELECT * FROM questions ORDER BY RAND() LIMIT 1`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
                 }
                 io.to(user.game).emit('kerdesek', results);
-
-                // Reseteljük a válaszokat és a számlálót
+    
+                // Reseteld a válaszokat és a számlálót
                 gameAnswers[user.game] = {};
-                gameAnswerCount[user.game] = 0; // Válaszok száma reset
+                gameAnswerCount[user.game] = 0;
                 gameUsers[user.game].forEach(id => {
-                    gameAnswers[user.game][id] = false; // Mindenki válasza resetelve
+                    gameAnswers[user.game][id] = false;
                 });
             });
         }
     });
+    
 
     socket.on('leaveGame', () => {
         let user = getCurrentUser(socket.id);
@@ -142,7 +144,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('gameOver', (winner) => {
-        io.emit('end', winner);
+
+        let user = getCurrentUser(socket.id);
+
+        io.to(user.game).emit('end', winner);
+
     });
 
 });
