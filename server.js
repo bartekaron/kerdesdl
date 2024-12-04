@@ -108,36 +108,49 @@ io.on('connection', (socket) => {
         let user = getCurrentUser(socket.id);
         console.log(valasz);
     
-        socket.emit('necsinald');
-    
-        // Frissítsd a válaszokat és a számlálót
+        // Jelöljük, hogy ez a játékos válaszolt
         gameAnswers[user.game][socket.id] = true;
         gameAnswerCount[user.game] += 1;
     
-        // Küldj üzenetet csak az adott szobának
+        // Küldjük az üzenetet csak a szobának
         io.to(user.game).emit('message', user.username, valasz);
     
-        // Ellenőrizd, hogy mindenki válaszolt-e
+        // Ellenőrizzük, hogy mindenki válaszolt-e
         if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
-            io.to(user.game).emit('csinald'); // Csak az adott szobára küldd
-    
-            // Új kérdés küldése az adott szobának
-            pool.query(`SELECT * FROM questions ORDER BY RAND() LIMIT 1`, (err, results) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                io.to(user.game).emit('kerdesek', results);
-    
-                // Reseteld a válaszokat és a számlálót
-                gameAnswers[user.game] = {};
-                gameAnswerCount[user.game] = 0;
-                gameUsers[user.game].forEach(id => {
-                    gameAnswers[user.game][id] = false;
-                });
+            // Ellenőrizzük, hogy ki a győztes
+            const correctAnswers = {}; // Játékos ID -> helyes válaszok száma
+            gameUsers[user.game].forEach((id) => {
+                if (!correctAnswers[id]) correctAnswers[id] = 0;
+                if (gameAnswers[user.game][id]) correctAnswers[id]++;
             });
+    
+            // Győztes meghatározása
+            let max = 0;
+            let winner = null;
+            for (let [id, count] of Object.entries(correctAnswers)) {
+                if (count > max) {
+                    max = count;
+                    winner = id;
+                }
+            }
+    
+            // Értesítés a győztesről
+            io.to(user.game).emit('end', winner);
+    
+            // Új játék inicializálása (vagy vége)
+            resetGame(user.game);
         }
     });
+    
+    // Játék inicializálás
+    function resetGame(game) {
+        gameAnswers[game] = {};
+        gameAnswerCount[game] = 0;
+        gameUsers[game].forEach(id => {
+            gameAnswers[game][id] = false;
+        });
+    }
+    
     
 
     socket.on('leaveGame', () => {
