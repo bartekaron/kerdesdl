@@ -10,6 +10,9 @@ let correctAnswers = {};
 let felhasznalokNeve = [];
 let felhasznalokId = [];
 let adatok = [];
+let totalUsers = 0;// Track the total number of users
+let lastQuestionAnswers = 0; // Track the number of answers for the last question
+
 socket.emit('joinToGame');
 
 socket.on('updateGameUsers', (gameUsers) => {
@@ -23,11 +26,17 @@ socket.on('updateGameUsers', (gameUsers) => {
     });
 });
 
+socket.on('updateUserCount', (count) => {
+    totalUsers = count;
+    console.log("Updated total users:", totalUsers);
+});
+
 socket.on('userConnected', (user) => {
     renderMessage('System', `${user.username} csatlakozott a játékhoz.`);
     felhasznalokNeve.push(user.username);
     felhasznalokId.push(user.id); // Ensure the correct user ID is pushed
 });
+
 
 socket.on('end', (winnerId) => {
     let winnerName = 'Senki';
@@ -45,22 +54,28 @@ socket.on('kerdesek', (results) => {
     adatok = results;
     szam = 0; 
     kerdesek.innerHTML = adatok[szam].question;
+    
    
 });
 
 sendBtn.addEventListener('click', () => {
+    if (adatok[szam].answer == valasz.value) {
+        renderMessage('System', 'Helyes válasz!');
 
-        if (adatok[szam].answer == valasz.value) {
-            renderMessage('System', 'Helyes válasz!');
-
-            if (!correctAnswers[socket.id]) {
-                correctAnswers[socket.id] = 0;
-            }
-            correctAnswers[socket.id]++;
+        if (!correctAnswers[socket.id]) {
+            correctAnswers[socket.id] = 0;
         }
-        socket.emit('sendAnswer', valasz.value); // Válasz elküldése
-        valasz.value = '';
-        if (valaszoltKerdesek == 2) {
+        correctAnswers[socket.id]++;
+    }
+    socket.emit('sendAnswer', valasz.value); // Válasz elküldése
+
+    valasz.value = '';
+    valaszoltKerdesek++;
+    console.log("Valaszolt kerdesek", valaszoltKerdesek);
+    if (valaszoltKerdesek == 2) {
+        lastQuestionAnswers++;
+        console.log("Utso valasz", lastQuestionAnswers);
+        if (lastQuestionAnswers === totalUsers) {
             let max = 0;
             let winner = '';
             for (let key in correctAnswers) {
@@ -71,7 +86,7 @@ sendBtn.addEventListener('click', () => {
             }
             socket.emit('gameOver', winner);
         }
-       
+    }
 });
 
 
@@ -80,12 +95,14 @@ socket.on('necsinald', () => {
 })
 socket.on('csinald', () => {
     sendBtn.disabled = false;
-    valaszoltKerdesek++;
+  
+    
     
 })
 
 leaveBtn.addEventListener('click', () => {
     socket.emit('leaveGame');
+    totalUsers--;
     document.location.href = '/';
 });
 

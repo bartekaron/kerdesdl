@@ -12,7 +12,7 @@ const io = socketio(server);
 const mysql = require('mysql')
 
 let gameUsers = {};
-
+let totalUsers = 0;
 const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
@@ -41,8 +41,10 @@ app.get('/game/:game/:user', (req, res)=>{
 let gameAnswers = {};  // A válaszok nyomon követésére szolgáló objektum
 let gameAnswerCount = {};  // A válaszolt játékosok száma
 
-io.on('connection', (socket) => {
+io.on('connection', (socket) => {   
     console.log(socket.id);
+
+    
 
     socket.emit('updateGameList', games);
 
@@ -52,6 +54,8 @@ io.on('connection', (socket) => {
 
     socket.on('joinToGame', () => {
         const game = session.game;
+        totalUsers++;
+        io.emit('updateUserCount', totalUsers);
 
         if (gameUsers[game] && gameUsers[game].length >= 5) {
             socket.emit('gameFull', 'Ez a szoba már tele van.');
@@ -131,6 +135,7 @@ io.on('connection', (socket) => {
 
     socket.on('leaveGame', () => {
         let user = getCurrentUser(socket.id);
+        totalUsers--;
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
         io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
@@ -141,6 +146,7 @@ io.on('connection', (socket) => {
             gameLeave(user.game);
             io.emit('updateGameList', games);
         }
+        
     });
 
     socket.on('gameOver', (winner) => {
@@ -150,6 +156,10 @@ io.on('connection', (socket) => {
         io.to(user.game).emit('end', winner);
 
     });
+
+    
+
+
 
 });
 
