@@ -52,6 +52,7 @@ socket.on('end', (winnerId) => {
         }
     }
     renderMessage('System', `A játék véget ért. A nyertes: ${winnerName}`);
+    sendBtn.disabled = true;
 });
 
 

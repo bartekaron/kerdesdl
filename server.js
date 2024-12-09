@@ -111,12 +111,15 @@ io.on('connection', (socket) => {
         // Jelöljük, hogy ez a játékos válaszolt
         gameAnswers[user.game][socket.id] = true;
         gameAnswerCount[user.game] += 1;
+
+        socket.emit('necsinald');
     
         // Küldjük az üzenetet csak a szobának
         io.to(user.game).emit('message', user.username, valasz);
     
         // Ellenőrizzük, hogy mindenki válaszolt-e
         if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
+            io.to(user.game).emit('csinald');
             // Ellenőrizzük, hogy ki a győztes
             const correctAnswers = {}; // Játékos ID -> helyes válaszok száma
             gameUsers[user.game].forEach((id) => {
