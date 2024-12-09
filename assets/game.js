@@ -83,7 +83,7 @@ sendBtn.addEventListener('click', () => {
     valasz.value = '';
     valaszoltKerdesek++;
     console.log("Valaszolt kerdesek", valaszoltKerdesek);
-    if (valaszoltKerdesek == 2) {
+    if (valaszoltKerdesek == 10) {
         lastQuestionAnswers++;
         socket.emit("lastQuestionAnswered", (lastQuestionAnswers));
         console.log("Utso valasz", lastQuestionAnswers);

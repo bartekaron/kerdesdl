@@ -41,6 +41,9 @@ app.get('/game/:game/:user', (req, res)=>{
 
 let gameAnswers = {};  // A válaszok nyomon követésére szolgáló objektum
 let gameAnswerCount = {};  // A válaszolt játékosok száma
+let correctAnswers = {};
+let adatok = [];
+let szam = 0;
 
 io.on('connection', (socket) => {   
     console.log(socket.id);
@@ -54,7 +57,6 @@ io.on('connection', (socket) => {
     });
 
     
-
     socket.on('joinToGame', () => {
         const game = session.game;
         totalUsers++;
@@ -72,12 +74,13 @@ io.on('connection', (socket) => {
         gameUsers[game].push(socket.id);
 
         if (gameUsers[game].length === 2) { // Ha 2 játékos csatlakozott
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 1`, (err, results) => {
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
                 }
                 console.log(results);
+                adatok = results;
                 io.to(game).emit('kerdesek', results);
                 // Inicializáljuk a válaszokat, hogy mindegyik játékos még nem válaszolt
                 gameAnswers[game] = {};
@@ -111,53 +114,78 @@ io.on('connection', (socket) => {
 
     socket.on('sendAnswer', (valasz) => {
         let user = getCurrentUser(socket.id);
-        console.log(valasz);
+        let game = user.game; // Aktuális játék
+        
+        // Ellenőrizzük, hogy létezik-e a correctAnswers a játékhoz
+        if (!correctAnswers[game]) {
+            correctAnswers[game] = {};
+        }
+        if (!correctAnswers[game][socket.id]) {
+            correctAnswers[game][socket.id] = 0;
+        }
     
-        // Jelöljük, hogy ez a játékos válaszolt
-        gameAnswers[user.game][socket.id] = true;
-        gameAnswerCount[user.game] += 1;
-
+        // Ellenőrizd a választ
+        if (adatok[szam].answer === valasz) {
+            correctAnswers[game][socket.id]++; // Növeld a helyes válaszok számát
+        }
+    
+        gameAnswers[game][socket.id] = true;
+        gameAnswerCount[game]++;
+    
         socket.emit('necsinald');
     
-        // Küldjük az üzenetet csak a szobának
-        io.to(user.game).emit('message', user.username, valasz);
+        io.to(game).emit('message', user.username, valasz);
     
-        // Ellenőrizzük, hogy mindenki válaszolt-e
-        if (gameAnswerCount[user.game] === gameUsers[user.game].length) {
-            io.to(user.game).emit('csinald');
-            // Ellenőrizzük, hogy ki a győztes
-            const correctAnswers = {}; // Játékos ID -> helyes válaszok száma
-            gameUsers[user.game].forEach((id) => {
-                if (!correctAnswers[id]) correctAnswers[id] = 0;
-                if (gameAnswers[user.game][id]) correctAnswers[id]++;
-            });
+
+        // Ellenőrizzük, hogy minden játékos válaszolt-e
+        if (gameAnswerCount[game] === gameUsers[game].length) {
+
+
+            szam++;
+            console.log(szam)
+            if (szam >= adatok.length) {
+                // Ha vége a kérdéseknek, határozzuk meg a győztest
+                let maxScore = -1;
+                let winnerId = null;
     
-            // Győztes meghatározása
-            let max = 0;
-            let winner = null;
-            for (let [id, count] of Object.entries(correctAnswers)) {
-                if (count > max) {
-                    max = count;
-                    winner = id;
+                for (let id of gameUsers[game]) {
+                    if (correctAnswers[game][id] > maxScore) {
+                        maxScore = correctAnswers[game][id];
+                        winnerId = id;
+                    }
                 }
+    
+                szam = 0;
+                // Értesítés a győztesről
+                io.to(game).emit('end', winnerId);
+                resetGame(game); // Új játék inicializálása
+            } else {
+                // Új kérdés                
+                gameAnswerCount[game] = 0;
+                gameUsers[game].forEach(id => {
+                    gameAnswers[game][id] = false; 
+                });
+                io.to(game).emit('csinald');
+                io.to(game).emit('kerdesek', [adatok[szam]]);
             }
-    
-            // Értesítés a győztesről
-            io.to(user.game).emit('end', winner);
-    
-            // Új játék inicializálása (vagy vége)
-            resetGame(user.game);
         }
     });
     
+
     // Játék inicializálás
     function resetGame(game) {
         gameAnswers[game] = {};
         gameAnswerCount[game] = 0;
+        correctAnswers = {}; // Minden pontszám alaphelyzetbe állítása
+    
         gameUsers[game].forEach(id => {
-            gameAnswers[game][id] = false;
+            correctAnswers[id] = 0; // Minden játékosnak alapértelmezett pontszám
+            gameAnswers[game][id] = false; // Jelölés, hogy nem válaszolt még
         });
     }
+    
+    
+    
     
     
 
@@ -166,12 +194,7 @@ io.on('connection', (socket) => {
         totalUsers--;
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
-        io.to(game).emit('updateGameUsers', {
-            gameUsers: getgameUsers(game),
-            userNames: gameUsers[game].map(id => getCurrentUser(id).username), // Felhasználónevek
-            userIds: gameUsers[game], // Felhasználói ID-k
-        });
-        
+        io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
 
         gameUsers[user.game] = gameUsers[user.game].filter(id => id !== socket.id);
 
@@ -179,7 +202,7 @@ io.on('connection', (socket) => {
             gameLeave(user.game);
             io.emit('updateGameList', games);
         }
-        
+
     });
 
     socket.on('gameOver', (winner) => {
