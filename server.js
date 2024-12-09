@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
         gameUsers[game].push(socket.id);
 
         if (gameUsers[game].length === 2) { // Ha 2 játékos csatlakozott
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 3`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
@@ -125,9 +125,11 @@ io.on('connection', (socket) => {
         }
     
         // Ellenőrizd a választ
-        if (adatok[szam].answer === valasz) {
-            correctAnswers[game][socket.id]++; // Növeld a helyes válaszok számát
+
+        if (adatok[szam].answer == valasz) {
+            correctAnswers[game][socket.id]++;
         }
+
     
         gameAnswers[game][socket.id] = true;
         gameAnswerCount[game]++;
@@ -142,7 +144,6 @@ io.on('connection', (socket) => {
 
 
             szam++;
-            console.log(szam)
             if (szam >= adatok.length) {
                 // Ha vége a kérdéseknek, határozzuk meg a győztest
                 let maxScore = -1;

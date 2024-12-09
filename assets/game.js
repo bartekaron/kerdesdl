@@ -81,26 +81,7 @@ sendBtn.addEventListener('click', () => {
     socket.emit('sendAnswer', valasz.value); // Válasz elküldése
 
     valasz.value = '';
-    valaszoltKerdesek++;
-    console.log("Valaszolt kerdesek", valaszoltKerdesek);
-    if (valaszoltKerdesek == 10) {
-        lastQuestionAnswers++;
-        socket.emit("lastQuestionAnswered", (lastQuestionAnswers));
-        console.log("Utso valasz", lastQuestionAnswers);
-        console.log("Total users", totalUsers);
-        if (lastQuestionAnswers === totalUsers) {
-            console.log("babos");
-            let max = 0;
-            let winner = '';
-            for (let key in correctAnswers) {
-                if (correctAnswers[key] > max) {
-                    max = correctAnswers[key];
-                    winner = key;
-                }
-            }
-            socket.emit('gameOver', winner);
-        }
-    }
+
 });
 
 
