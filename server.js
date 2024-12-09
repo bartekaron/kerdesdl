@@ -91,7 +91,12 @@ io.on('connection', (socket) => {
 
         let user = userJoin(socket.id, session.user, game);
         socket.join(game);
-        io.to(game).emit('updateGameUsers', getgameUsers(game)); // Frissítés csak a szobának
+        io.to(game).emit('updateGameUsers', {
+            gameUsers: getgameUsers(game),
+            userNames: gameUsers[game].map(id => getCurrentUser(id).username), // Felhasználónevek
+            userIds: gameUsers[game], // Felhasználói ID-k
+        });
+        
         io.to(game).emit('userConnected', user); // Felhasználó értesítése a szobában
         if (!ingamesList(game)) {
             games.push(game);
@@ -161,7 +166,12 @@ io.on('connection', (socket) => {
         totalUsers--;
         userLeave(socket.id);
         io.to(user.game).emit('message', 'System', `${user.username} left the chat...`);
-        io.to(user.game).emit('updateGameUsers', getgameUsers(user.game));
+        io.to(game).emit('updateGameUsers', {
+            gameUsers: getgameUsers(game),
+            userNames: gameUsers[game].map(id => getCurrentUser(id).username), // Felhasználónevek
+            userIds: gameUsers[game], // Felhasználói ID-k
+        });
+        
 
         gameUsers[user.game] = gameUsers[user.game].filter(id => id !== socket.id);
 

@@ -15,16 +15,21 @@ let lastQuestionAnswers = 0; // Track the number of answers for the last questio
 
 socket.emit('joinToGame');
 
-socket.on('updateGameUsers', (gameUsers) => {
+socket.on('updateGameUsers', ({ gameUsers, userNames, userIds }) => {
     usersList.innerHTML = '';
     let ul = document.createElement('ul');
     usersList.appendChild(ul);
+
+    felhasznalokNeve = userNames;
+    felhasznalokId = userIds;
+
     gameUsers.forEach(user => {
         let li = document.createElement('li');
         li.textContent = user.username;
         ul.appendChild(li);
     });
 });
+
 
 socket.on('updateUserCount', (count) => {
     totalUsers = count;
