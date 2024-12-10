@@ -13,7 +13,6 @@ const mysql = require('mysql')
 
 let gameUsers = {};
 let totalUsers = 0;
-let lastQuestionAnswers = 0;
 const { users, games, userJoin, userLeave, getgameUsers, getCurrentUser, ingamesList, gameLeave } = require('./utils');
 
 app.use('/assets', express.static('assets'));
@@ -43,7 +42,6 @@ let gameAnswers = {};  // A válaszok nyomon követésére szolgáló objektum
 let gameAnswerCount = {};  // A válaszolt játékosok száma
 let gameQuestions = {}; // Szobákhoz tartozó kérdések tárolása
 let correctAnswers = {};
-let adatok = [];
 let szam = 0;
 
 io.on('connection', (socket) => {   
@@ -74,8 +72,8 @@ io.on('connection', (socket) => {
 
         gameUsers[game].push(socket.id);
 
-        if (gameUsers[game].length === 2) { // Ha 2 játékos csatlakozott
-            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 3`, (err, results) => {
+        if (gameUsers[game].length === 5) { // Ha 2 játékos csatlakozott
+            pool.query(`SELECT * FROM questions GROUP BY RAND() LIMIT 10`, (err, results) => {
                 if (err) {
                     console.log(err);
                     return;
