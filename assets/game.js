@@ -49,14 +49,19 @@ socket.on('userConnected', (user) => {
 
 
 socket.on('end', (winnerId) => {
-    let winnerName = 'Senki';
+    let winnerName = 'Döntetlen';
     for (let i = 0; i < felhasznalokNeve.length; i++) {
         if (felhasznalokId[i] == winnerId) {
             winnerName = felhasznalokNeve[i];
             break;
         }
     }
-    renderMessage('System', `A játék véget ért. A nyertes: ${winnerName}`);
+    if (winnerName == "Döntetlen") {
+        renderMessage('System', `A játék véget ért. ${winnerName} lett a vége`);
+    }
+    else{
+        renderMessage('System', `A játék véget ért. A nyertes: ${winnerName}`);
+    }
     sendBtn.disabled = true;
 });
 
@@ -71,7 +76,6 @@ socket.on('kerdesek', (results) => {
 
 sendBtn.addEventListener('click', () => {
     if (adatok[szam].answer == valasz.value) {
-        renderMessage('System', 'Helyes válasz!');
 
         if (!correctAnswers[socket.id]) {
             correctAnswers[socket.id] = 0;
